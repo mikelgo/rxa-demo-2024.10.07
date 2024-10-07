@@ -16,7 +16,7 @@ export class PostDataService {
 
   constructor() { }
 
-  getPosts(){
+  getPosts(page: unknown, sort: unknown, query: unknown){
     return this.#http.get<Array<Post>>('https://jsonplaceholder.typicode.com/posts')
   }
   getPostById(id: number){
