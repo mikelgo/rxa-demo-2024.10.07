@@ -6,6 +6,15 @@ import {rxActions} from '@rx-angular/state/actions';
 import {combineLatest, map, merge, Subject, switchMap} from 'rxjs';
 import {PaginatorComponent} from '../paginator/paginator.component';
 import {ListFilterComponent, SortDirection} from '../list-filter/list-filter.component';
+import {rxState} from '@rx-angular/state';
+
+interface ComponentState {
+    page: number;
+    sort: SortDirection;
+    query: string;
+  selectedPost: Post | null;
+  posts: Post[];
+}
 
 @Component({
   selector: 'app-post-list',
@@ -23,14 +32,14 @@ import {ListFilterComponent, SortDirection} from '../list-filter/list-filter.com
     <app-paginator (pageChange)="onPageChange($event)"/>
     <app-list-filter (searchQueryChange)="onQueryChange($event)" (sortChange)="onSortChange($event)"/>
     <div>
-      @if(selectedPost){
-        <h3>{{ selectedPost.title }}</h3>
+      @if(readOnlyState.signal('selectedPost')()){
+        <h3>{{ selectedPost().title }}</h3>
       } @else {
         Kein Post ausgewählt!
       }
     </div>
     <ul>
-        @for(post of posts$ | async; track post.id){
+        @for(post of posts(); track post.id){
            <li (click)="selectPost(post)">
                 {{ post.title }}
             </li>
@@ -40,29 +49,37 @@ import {ListFilterComponent, SortDirection} from '../list-filter/list-filter.com
   `
 })
 export class PostListComponent {
+  #state = rxState<ComponentState>();
+
+  readOnlyState = this.#state.asReadOnly();
+
   #dataServie = inject(PostDataService);
   #actions = rxActions<{reloadList: void, resetList: void, pageChange: number, sortChange: SortDirection, searchQueryChange: string}>();
 
-  initialPage = 0;
-  initialSort: SortDirection = 'asc';
-  initialQuery = '';
-  posts$ = merge(
+  posts = this.#state.signal('posts');
+  selectedPost = this.#state.signal('selectedPost');
 
-    combineLatest([
-      this.#actions.pageChange$,
-      this.#actions.sortChange$,
-      this.#actions.searchQueryChange$
-    ]).pipe(
-      switchMap(([page, sort, query]) => this.#dataServie.getPosts(page, sort, query))
-    ),
-    this.#dataServie.getPosts(this.initialPage, this.initialSort, this.initialQuery),
-    this.#actions.resetList$.pipe(map(() => []))
-  )
-  selectedPost: Post | null = null;
+
+  constructor() {
+    this.#state.set({selectedPost: null, page: 0, query: '', sort: "asc"});
+
+    this.#state.connect('posts', merge(
+        combineLatest([
+          this.#actions.pageChange$,
+          this.#actions.sortChange$,
+          this.#actions.searchQueryChange$
+        ]).pipe(
+          switchMap(([page, sort, query]) => this.#dataServie.getPosts(page, sort, query))
+        ),
+        this.#dataServie.getPosts(this.#state.get('page'), this.#state.get('sort'), this.#state.get('query')),
+        this.#actions.resetList$.pipe(map(() => []))
+      ))
+
+  }
 
 
   selectPost(post: Post){
-    this.selectedPost = post;
+    this.#state.set({selectedPost: post});
   }
   reloadList(){
     this.#actions.reloadList();
