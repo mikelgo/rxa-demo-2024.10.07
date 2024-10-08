@@ -33,7 +33,7 @@ interface ComponentState {
     <app-list-filter (searchQueryChange)="onQueryChange($event)" (sortChange)="onSortChange($event)"/>
     <div>
       @if(readOnlyState.signal('selectedPost')()){
-        <h3>{{ selectedPost().title }}</h3>
+        <h3>{{ selectedPost()?.title }}</h3>
       } @else {
         Kein Post ausgewählt!
       }
