@@ -9,7 +9,8 @@ import {
   map,
   mergeMap,
   Subject,
-  switchMap
+  switchMap,
+  merge
 } from 'rxjs';
 import {AsyncPipe} from '@angular/common';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
@@ -34,7 +35,7 @@ import {MatInput, MatInputModule} from '@angular/material/input';
     </mat-form-field>
     Suche: {{searchQuery$ | async}}
 
-    @if(data$ | async; as data ){
+    @if(result$ | async; as data ){
        @for(post of data; track post.id){
       <div>{{post.title}}</div>
         }
@@ -63,11 +64,26 @@ export class ClientSidePaginatedPostsComponent {
     distinctUntilChanged(),
    )
 
-   data$ = this.#dataService.getIdList().pipe(
-   // exhaustMap, concatMap, mergeMap
+   queryResetted$ = this.searchFormControl.valueChanges.pipe(
+    filter(query => !query || query.length === 0)
+   )
+
+   posts$ = this.#dataService.getIdList().pipe(
     switchMap(ids => this.#dataService.getPostsForIds(ids))
    )
 
+   filteredPosts$ = this.searchQuery$.pipe(
+    switchMap(searchQuery => this.posts$.pipe(
+      map(posts => posts.filter(post => post.title.includes(searchQuery)))
+    ))
+   )
 
+   result$ = merge(
+    this.posts$,
+    this.filteredPosts$,
+    this.queryResetted$.pipe(
+      switchMap(() => this.posts$)
+    )
+   )
 
 }
