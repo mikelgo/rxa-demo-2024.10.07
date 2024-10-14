@@ -31,13 +31,13 @@ import {MatInput, MatInputModule} from '@angular/material/input';
   template: `
     <mat-form-field >
       <mat-label>Suche</mat-label>
-      <input matInput [formControl]="searchFormControl">
+      <input data-testid="search-field" matInput [formControl]="searchFormControl">
     </mat-form-field>
     Suche: {{searchQuery$ | async}}
 
     @if(result$ | async; as data ){
        @for(post of data; track post.id){
-      <div>{{post.title}}</div>
+        <div data-testid="post">{{post.title}}</div>
         }
     } @else {
       <div>Loading...</div>
