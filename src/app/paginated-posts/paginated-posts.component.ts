@@ -68,6 +68,7 @@ export interface PostQuery {
 <mat-paginator *ngIf="data.page$ | async as page"
   [length]="page.totalElements" [pageSize]="page.size"
   [pageIndex]="page.number" [hidePageSize]="true"
+
   (page)="data.fetch($event.pageIndex)">
 </mat-paginator>
 `

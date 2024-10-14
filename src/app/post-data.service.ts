@@ -69,24 +69,8 @@ export class PostDataService {
 
 
   }
-  getPostsPage(page: number, sort: SortDirection, query: string){
-    return this.#http.get<Array<Post>>(`https://jsonplaceholder.typicode.com/posts?_start=${page * 5}&_limit=5`).pipe(
-      map(posts => {
-        if(query){
-          return posts.filter(post => post.title.includes(query))
-        } else {
-          return posts
-        }
-      }),
-      map(posts => {
-        if(sort === 'asc'){
-          return posts.sort((a, b) => a.title.localeCompare(b.title))
-        } else if(sort === 'desc'){
-          return posts.sort((a, b) => b.title.localeCompare(a.title))
-        } else {
-          return posts
-        }
-      })
+  getData(){
+    return this.#http.get<Array<Post>>(`https://jsonplaceholder.typicode.com/posts`).pipe(
       )
   }
   getPostById(id: number){
