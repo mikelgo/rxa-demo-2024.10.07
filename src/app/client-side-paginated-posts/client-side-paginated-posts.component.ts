@@ -55,17 +55,12 @@ import {MatInput, MatInputModule} from '@angular/material/input';
 export class ClientSidePaginatedPostsComponent {
    #dataService = inject(DataService)
 
-   searchFormControl = new FormControl('')
+   searchFormControl = new FormControl<string>('', {nonNullable: true})
 
    searchQuery$ = this.searchFormControl.valueChanges.pipe(
     debounceTime(500),
-    filter(Boolean),
-    filter(query => query?.length > 2),
+    map(query => query?.trim()?.toLowerCase()),
     distinctUntilChanged(),
-   )
-
-   queryResetted$ = this.searchFormControl.valueChanges.pipe(
-    filter(query => !query || query.length === 0)
    )
 
    posts$ = this.#dataService.getIdList().pipe(
@@ -74,16 +69,13 @@ export class ClientSidePaginatedPostsComponent {
 
    filteredPosts$ = this.searchQuery$.pipe(
     switchMap(searchQuery => this.posts$.pipe(
-      map(posts => posts.filter(post => post.title.includes(searchQuery)))
+      map(posts => posts.filter(post => post.title.includes(searchQuery ?? '')))
     ))
    )
 
    result$ = merge(
     this.posts$,
     this.filteredPosts$,
-    this.queryResetted$.pipe(
-      switchMap(() => this.posts$)
-    )
    )
 
 }
