@@ -1,4 +1,14 @@
-import {Component, inject} from '@angular/core';
+import {
+  Component,
+  contentChild,
+  contentChildren,
+  Directive,
+  effect,
+  inject,
+  input,
+  TemplateRef,
+  viewChild
+} from '@angular/core';
 import {DataService} from './data.service';
 import {
   concatMap,
@@ -10,12 +20,57 @@ import {
   mergeMap,
   Subject,
   switchMap,
-  merge
+  merge,
+  of, withLatestFrom
 } from 'rxjs';
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, NgComponentOutlet, NgIf, NgTemplateOutlet} from '@angular/common';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {MatFormField} from '@angular/material/form-field';
 import {MatInput, MatInputModule} from '@angular/material/input';
+import {
+  MatCell,
+  MatCellDef,
+  MatColumnDef,
+  MatHeaderCell, MatHeaderCellDef,
+  MatHeaderRow,
+  MatHeaderRowDef,
+  MatRow, MatRowDef, MatTable, MatTableDataSource
+} from '@angular/material/table';
+import {MatPaginator} from '@angular/material/paginator';
+import {MatSort, Sort} from '@angular/material/sort';
+import {toObservable} from '@angular/core/rxjs-interop';
+import {rxEffects} from '@rx-angular/state/effects';
+
+
+export type FilterFn<T> =(value: T, query: string) => boolean;
+
+@Directive({
+standalone: true,
+selector: '[app-cell-header]'
+})
+export class CellHeaderDirective {
+  constructor(public template: TemplateRef<any>) {
+  }
+}
+@Directive({
+standalone: true,
+selector: '[app-cell-body]'
+})
+export class CellBodyDirective {
+  constructor(public template: TemplateRef<any>) {
+  }
+}
+
+@Component({
+  selector: 'app-row',
+  template: '',
+  standalone: true
+})
+export class RowComponent<T>{
+  id = input.required<string>()
+  cellHeader = contentChild(CellHeaderDirective)
+  cellBody = contentChild(CellBodyDirective)
+}
 
 /**
  * Steps:
@@ -27,20 +82,31 @@ import {MatInput, MatInputModule} from '@angular/material/input';
 @Component({
   selector: 'app-client-side-paginated-posts',
   standalone: true,
-  imports: [AsyncPipe, ReactiveFormsModule, MatFormField, MatInputModule],
+  imports: [AsyncPipe, ReactiveFormsModule, MatFormField, MatInputModule, MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderRow, MatHeaderRowDef, MatPaginator, MatRow, MatRowDef, MatSort, MatTable, NgIf, NgTemplateOutlet, NgComponentOutlet, MatHeaderCellDef],
   template: `
     <mat-form-field >
       <mat-label>Suche</mat-label>
       <input data-testid="search-field" matInput [formControl]="searchFormControl">
     </mat-form-field>
-    Suche: {{searchQuery$ | async}}
-
-    @if(result$ | async; as data ){
-       @for(post of data; track post.id){
-        <div data-testid="post">{{post.title}}</div>
+    @if(cells()){
+    <table mat-table [dataSource]="datasource" matSort (matSortChange)="sortBy($event)" matSortActive="username" matSortStart="asc" matSortDisableClear class="mat-elevation-z1">
+        @for(cell of cells(); track $index){
+            <ng-container matColumnDef="{{cell.id()}}">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                    <ng-container *ngTemplateOutlet="cell.cellHeader()!.template"></ng-container>
+                </th>
+                <td mat-cell *matCellDef="let user">
+                    <ng-container *ngTemplateOutlet="cell.cellBody()!.template; context: {$implicit: user}"></ng-container>
+                </td>
+            </ng-container>
         }
-    } @else {
-      <div>Loading...</div>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+    </table>
+    <mat-paginator  [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons>
+      >
+    </mat-paginator>
     }
 
 
@@ -52,30 +118,51 @@ import {MatInput, MatInputModule} from '@angular/material/input';
     }
 `
 })
-export class ClientSidePaginatedPostsComponent {
-   #dataService = inject(DataService)
+export class ClientSidePaginatedPostsComponent<T> {
+  paginator = viewChild.required(MatPaginator)
+  sort = viewChild.required(MatSort)
 
-   searchFormControl = new FormControl<string>('', {nonNullable: true})
+  cells = contentChildren(RowComponent, {descendants: true})
 
-   searchQuery$ = this.searchFormControl.valueChanges.pipe(
+  #effects = rxEffects()
+  data = input.required<T[]>()
+  displayedColumns = input.required<string[]>()
+  filterFunction = input.required<FilterFn<T>>()
+
+  datasource = new MatTableDataSource<T>([])
+
+  searchFormControl = new FormControl<string>('', {nonNullable: true})
+
+  searchQuery$ = this.searchFormControl.valueChanges.pipe(
     debounceTime(500),
     map(query => query?.trim()?.toLowerCase()),
     distinctUntilChanged(),
    )
 
-   posts$ = this.#dataService.getIdList().pipe(
-    switchMap(ids => this.#dataService.getPostsForIds(ids))
-   )
+   data$ = toObservable(this.data)
+
 
    filteredPosts$ = this.searchQuery$.pipe(
-    switchMap(searchQuery => this.posts$.pipe(
-      map(posts => posts.filter(post => post.title.includes(searchQuery ?? '')))
-    ))
+    withLatestFrom(this.data$),
+    map(([searchQuery, posts]) => posts.filter(post => this.filterFunction()(post, searchQuery)))
    )
 
    result$ = merge(
-    this.posts$,
+    this.data$,
     this.filteredPosts$,
    )
 
+  constructor() {
+    this.#effects.register(this.result$, data => {
+      this.datasource.data = data
+      this.datasource.paginator = this.paginator()
+      this.datasource.sort = this.sort()
+      this.datasource.paginator.firstPage();
+    })
+  }
+
+
+  sortBy(sortChange: Sort) {
+
+  }
 }
