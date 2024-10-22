@@ -90,7 +90,7 @@ export class RowComponent<T> {
 		MatHeaderCellDef,
 	],
 	template: `
-		<mat-form-field>
+		<mat-form-field class="w-full">
 			<mat-label>Suche</mat-label>
 			<input data-testid="search-field" matInput [formControl]="searchFormControl" />
 		</mat-form-field>
