@@ -3,31 +3,15 @@ import {
 	contentChild,
 	contentChildren,
 	Directive,
-	effect,
-	inject,
 	input,
 	TemplateRef,
 	viewChild,
 } from '@angular/core';
-import { DataService } from './data.service';
-import {
-	concatMap,
-	debounceTime,
-	distinctUntilChanged,
-	exhaustMap,
-	filter,
-	map,
-	mergeMap,
-	Subject,
-	switchMap,
-	merge,
-	of,
-	withLatestFrom,
-} from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, merge, withLatestFrom } from 'rxjs';
 import { AsyncPipe, NgComponentOutlet, NgIf, NgTemplateOutlet } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormField } from '@angular/material/form-field';
-import { MatInput, MatInputModule } from '@angular/material/input';
+import { MatInputModule } from '@angular/material/input';
 import {
 	MatCell,
 	MatCellDef,
@@ -59,8 +43,8 @@ export class CellHeaderDirective {
 	standalone: true,
 	selector: '[app-cell-body]',
 })
-export class CellBodyDirective {
-	constructor(public template: TemplateRef<any>) {}
+export class CellBodyDirective<T> {
+	constructor(public template: TemplateRef<T>) {}
 }
 
 @Component({
@@ -71,7 +55,7 @@ export class CellBodyDirective {
 export class RowComponent<T> {
 	id = input.required<string>();
 	cellHeader = contentChild(CellHeaderDirective);
-	cellBody = contentChild(CellBodyDirective);
+	cellBody = contentChild(CellBodyDirective<T>);
 }
 
 /**
@@ -126,9 +110,9 @@ export class RowComponent<T> {
 						<th mat-header-cell *matHeaderCellDef mat-sort-header>
 							<ng-container *ngTemplateOutlet="cell.cellHeader()!.template"></ng-container>
 						</th>
-						<td mat-cell *matCellDef="let user">
+						<td mat-cell *matCellDef="let data">
 							<ng-container
-								*ngTemplateOutlet="cell.cellBody()!.template; context: { $implicit: user }"
+								*ngTemplateOutlet="cell.cellBody()!.template; context: { $implicit: data }"
 							></ng-container>
 						</td>
 					</ng-container>
@@ -151,7 +135,7 @@ export class ClientSidePaginatedPostsComponent<T> {
 	paginator = viewChild.required(MatPaginator);
 	sort = viewChild.required(MatSort);
 
-	cells = contentChildren(RowComponent, { descendants: true });
+	cells = contentChildren(RowComponent<T>, { descendants: true });
 
 	#effects = rxEffects();
 	data = input.required<T[]>();
