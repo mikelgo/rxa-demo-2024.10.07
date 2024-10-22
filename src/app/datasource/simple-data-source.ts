@@ -1,9 +1,8 @@
-import {DataSource} from '@angular/cdk/collections'
-import {Observable} from 'rxjs'
-
+import { DataSource } from '@angular/cdk/collections';
+import { Observable } from 'rxjs';
 
 export interface SimpleDataSource<T> extends DataSource<T> {
-  connect(): Observable<T[]>
+	connect(): Observable<T[]>;
 
-  disconnect(): void
+	disconnect(): void;
 }

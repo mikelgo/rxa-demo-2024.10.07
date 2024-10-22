@@ -3,14 +3,14 @@ import { TestBed } from '@angular/core/testing';
 import { PostsStateService } from './posts-state.service';
 
 describe('PostsStateService', () => {
-  let service: PostsStateService;
+	let service: PostsStateService;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(PostsStateService);
-  });
+	beforeEach(() => {
+		TestBed.configureTestingModule({});
+		service = TestBed.inject(PostsStateService);
+	});
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+	it('should be created', () => {
+		expect(service).toBeTruthy();
+	});
 });

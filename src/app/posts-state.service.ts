@@ -1,16 +1,14 @@
 import { Injectable } from '@angular/core';
-import {rxState} from '@rx-angular/state';
+import { rxState } from '@rx-angular/state';
 
-interface State {
-
-}
+interface State {}
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: 'root',
 })
 export class PostsStateService {
-  #state = rxState<State>()
-  constructor() { }
+	#state = rxState<State>();
+	constructor() {}
 
-  posts$ = this.#state.select('posts');
+	posts$ = this.#state.select('posts');
 }
