@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { SortDirection } from './list-filter/list-filter.component';
 import { map, Observable, of, switchMap } from 'rxjs';
 import { PostQuery } from './paginated-posts/paginated-posts.component';
 import { Page, PageRequest } from './datasource';

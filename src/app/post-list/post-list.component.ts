@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { Post, PostDataService } from '../post-data.service';
-import { rxEffects } from '@rx-angular/state/effects';
 import { AsyncPipe } from '@angular/common';
 import { rxActions } from '@rx-angular/state/actions';
-import { combineLatest, map, merge, Subject, switchMap } from 'rxjs';
-import { PaginatorComponent } from '../paginator/paginator.component';
-import { ListFilterComponent, SortDirection } from '../list-filter/list-filter.component';
+import { combineLatest, map, merge, switchMap } from 'rxjs';
+
 import { rxState } from '@rx-angular/state';
+import { PaginatorComponent } from './paginator/paginator.component';
+import { ListFilterComponent, SortDirection } from './list-filter/list-filter.component';
 
 interface ComponentState {
 	page: number;
