@@ -3,6 +3,7 @@ import {
 	contentChild,
 	contentChildren,
 	Directive,
+	effect,
 	input,
 	TemplateRef,
 	viewChild,
@@ -161,12 +162,18 @@ export class ClientSidePaginatedPostsComponent<T> {
 
 	result$ = merge(this.data$, this.filteredPosts$);
 
+	#initPaginatorEffect = effect(() => {
+		this.datasource.paginator = this.paginator();
+		this.datasource.paginator.firstPage();
+	});
+
+	#initSortEffect = effect(() => {
+		this.datasource.sort = this.sort();
+	});
+
 	constructor() {
 		this.#effects.register(this.result$, (data) => {
 			this.datasource.data = data;
-			this.datasource.paginator = this.paginator();
-			this.datasource.sort = this.sort();
-			this.datasource.paginator.firstPage();
 		});
 	}
 
