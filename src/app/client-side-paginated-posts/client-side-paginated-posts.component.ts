@@ -94,7 +94,7 @@ export class RowComponent<T> {
 			<mat-label>Suche</mat-label>
 			<input data-testid="search-field" matInput [formControl]="searchFormControl" />
 		</mat-form-field>
-		@if (cells()) {
+		@if (rows()) {
 			<table
 				mat-table
 				[dataSource]="datasource"
@@ -105,7 +105,7 @@ export class RowComponent<T> {
 				matSortDisableClear
 				class="mat-elevation-z1"
 			>
-				@for (cell of cells(); track $index) {
+				@for (cell of rows(); track $index) {
 					<ng-container matColumnDef="{{ cell.id() }}">
 						<th mat-header-cell *matHeaderCellDef mat-sort-header>
 							<ng-container *ngTemplateOutlet="cell.cellHeader()!.template"></ng-container>
@@ -121,7 +121,7 @@ export class RowComponent<T> {
 				<tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
 				<tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
 			</table>
-			<mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons> > </mat-paginator>
+			<mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons> ></mat-paginator>
 		}
 	`,
 	styles: `
@@ -135,7 +135,7 @@ export class ClientSidePaginatedPostsComponent<T> {
 	paginator = viewChild.required(MatPaginator);
 	sort = viewChild.required(MatSort);
 
-	cells = contentChildren(RowComponent<T>, { descendants: true });
+	rows = contentChildren(RowComponent<T>, { descendants: true });
 
 	#effects = rxEffects();
 	data = input.required<T[]>();
