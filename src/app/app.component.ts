@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
+import { RouterLink, RouterOutlet } from '@angular/router';
 import { PostListComponent } from './post-list/post-list.component';
 import { PaginatedPostsComponent } from './paginated-posts/paginated-posts.component';
 import {
@@ -15,11 +15,7 @@ import {
 	MatHeaderCell,
 	MatHeaderCellDef,
 } from '@angular/material/table';
-import { switchMap } from 'rxjs';
-import { DataService } from './client-side-paginated-posts/data.service';
 import { AsyncPipe } from '@angular/common';
-import { startWith } from 'rxjs/operators';
-import { Post } from './post-data.service';
 
 @Component({
 	selector: 'app-root',
@@ -38,19 +34,24 @@ import { Post } from './post-data.service';
 		RowComponent,
 		CellBodyDirective,
 		CellHeaderDirective,
+		RouterLink,
 	],
-	templateUrl: './app.component.html',
-	styleUrl: './app.component.css',
+	template: `
+		<nav class="w-full bg-amber-200">
+			<ul class="flex flex-row gap-2 justify-end items-center">
+				<li><a routerLink="/rx-state">RxState</a></li>
+				<li><a routerLink="/pagination-server-side">Server Side Pagination</a></li>
+				<li><a routerLink="/pagination-client-side">Client Side Pagination</a></li>
+			</ul>
+		</nav>
+		<router-outlet></router-outlet>
+	`,
+	styles: `
+		li {
+			@apply py-2 font-semibold hover:bg-amber-400 px-4;
+		}
+	`,
 })
 export class AppComponent {
 	title = 'rxa-demo';
-	#dataService = inject(DataService);
-
-	columns = ['id', 'userId', 'title', 'body'];
-
-	filterFunction = (post: Post, searchQuery: string) => post.title.includes(searchQuery ?? '');
-
-	posts$ = this.#dataService
-		.getIdList()
-		.pipe(switchMap((ids) => this.#dataService.getPostsForIds(ids)));
 }
