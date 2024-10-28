@@ -6,7 +6,7 @@ import {
 	CellBodyDirective,
 	CellHeaderDirective,
 	ClientSidePaginatedPostsComponent,
-	RowComponent,
+	ColumnComponent,
 } from '../client-side-paginated-posts/client-side-paginated-posts.component';
 import { AsyncPipe } from '@angular/common';
 
@@ -14,7 +14,7 @@ import { AsyncPipe } from '@angular/common';
 	selector: 'app-client-side-pagination-demo',
 	standalone: true,
 	imports: [
-		RowComponent,
+		ColumnComponent,
 		CellHeaderDirective,
 		CellBodyDirective,
 		ClientSidePaginatedPostsComponent,
@@ -28,22 +28,22 @@ import { AsyncPipe } from '@angular/common';
 		>
 			<app-row [id]="'id'">
 				<ng-container *app-cell-header> ID</ng-container>
-				<ng-container *app-cell-body="let user"> {{ user.id }}</ng-container>
+				<ng-container *app-cell-body="let post"> {{ post.id }}</ng-container>
 			</app-row>
 
 			<app-row [id]="'userId'">
 				<ng-container *app-cell-header> UserId</ng-container>
-				<ng-container *app-cell-body="let user"> {{ user.userId }}</ng-container>
+				<ng-container *app-cell-body="let post"> {{ post.userId }}</ng-container>
 			</app-row>
 
 			<app-row [id]="'title'">
 				<ng-container *app-cell-header> Title</ng-container>
-				<ng-container *app-cell-body="let user"> {{ user.title }}</ng-container>
+				<ng-container *app-cell-body="let post"> {{ post.title }}</ng-container>
 			</app-row>
 
 			<app-row [id]="'body'">
 				<ng-container *app-cell-header> Body</ng-container>
-				<ng-container *app-cell-body="let user"> {{ user.body }}</ng-container>
+				<ng-container *app-cell-body="let post"> {{ post.body }}</ng-container>
 			</app-row>
 		</app-client-side-paginated-posts>
 	`,

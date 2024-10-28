@@ -6,7 +6,7 @@ import {
 	CellBodyDirective,
 	CellHeaderDirective,
 	ClientSidePaginatedPostsComponent,
-	RowComponent,
+	ColumnComponent,
 } from './client-side-paginated-posts/client-side-paginated-posts.component';
 import {
 	MatCell,
@@ -31,7 +31,7 @@ import { AsyncPipe } from '@angular/common';
 		MatHeaderCell,
 		AsyncPipe,
 		MatHeaderCellDef,
-		RowComponent,
+		ColumnComponent,
 		CellBodyDirective,
 		CellHeaderDirective,
 		RouterLink,

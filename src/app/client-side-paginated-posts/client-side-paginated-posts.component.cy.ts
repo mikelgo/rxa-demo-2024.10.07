@@ -4,8 +4,8 @@ import {
 	CellBodyDirective,
 	CellHeaderDirective,
 	ClientSidePaginatedPostsComponent,
+	ColumnComponent,
 	FilterFn,
-	RowComponent,
 } from './client-side-paginated-posts.component';
 import { AsyncPipe } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -19,7 +19,7 @@ import { Component } from '@angular/core';
 	imports: [
 		ClientSidePaginatedPostsComponent,
 		CellBodyDirective,
-		RowComponent,
+		ColumnComponent,
 		CellHeaderDirective,
 	],
 	standalone: true,

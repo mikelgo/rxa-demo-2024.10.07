@@ -53,7 +53,7 @@ export class CellBodyDirective<T> {
 	template: '',
 	standalone: true,
 })
-export class RowComponent<T> {
+export class ColumnComponent<T> {
 	id = input.required<string>();
 	cellHeader = contentChild(CellHeaderDirective);
 	cellBody = contentChild(CellBodyDirective<T>);
@@ -95,7 +95,7 @@ export class RowComponent<T> {
 			<mat-label>Suche</mat-label>
 			<input data-testid="search-field" matInput [formControl]="searchFormControl" />
 		</mat-form-field>
-		@if (rows()) {
+		@if (columns()) {
 			<table
 				mat-table
 				[dataSource]="datasource"
@@ -106,7 +106,7 @@ export class RowComponent<T> {
 				matSortDisableClear
 				class="mat-elevation-z1"
 			>
-				@for (cell of rows(); track $index) {
+				@for (cell of columns(); track $index) {
 					<ng-container matColumnDef="{{ cell.id() }}">
 						<th mat-header-cell *matHeaderCellDef mat-sort-header>
 							<ng-container *ngTemplateOutlet="cell.cellHeader()!.template"></ng-container>
@@ -136,7 +136,7 @@ export class ClientSidePaginatedPostsComponent<T> {
 	paginator = viewChild.required(MatPaginator);
 	sort = viewChild.required(MatSort);
 
-	rows = contentChildren(RowComponent<T>, { descendants: true });
+	columns = contentChildren(ColumnComponent<T>, { descendants: true });
 
 	#effects = rxEffects();
 	data = input.required<T[]>();
